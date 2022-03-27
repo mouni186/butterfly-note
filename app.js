@@ -17,7 +17,7 @@ app.get('/api-butterfly', (req, res) => {
 
 
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-    console.log(`Listening on port ${port}`);
+// const port = process.env.PORT || 5000;
+app.listen(process.env.PORT, () => {
+    console.log(`Listening on port `);
 })
