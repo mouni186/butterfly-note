@@ -1,0 +1,26 @@
+{
+  "name": "butterfly-note",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mouni186/butterfly-note.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mouni186/butterfly-note/issues"
+  },
+  "homepage": "https://github.com/mouni186/butterfly-note#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "joi": "^17.6.0",
+    "xss": "^1.0.11"
+  }
+}
