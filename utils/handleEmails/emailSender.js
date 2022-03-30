@@ -16,6 +16,7 @@ const sendOtpEmail = async (user, theRandomNumber) => {
         subject: "OTP Generation",
         html: `<b>${theRandomNumber}</b>`
     })
+    return true;
 
 }
 

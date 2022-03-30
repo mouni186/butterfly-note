@@ -1,109 +1,150 @@
-const {nanoid} = require('nanoid');
+const { nanoid } = require('nanoid');
 const CRUDOperationInDynamodb = require('./repo/CRUD.repo');
 const { sendOtpEmail } = require('../utils/handleEmails/emailSender');
 
 
 
-const userLoginDetails = async (req, res) => {
+const userLoginDetails = async (data) => {
     // incoming data
-    const userEmail = req.body.email;
-    const userPassword = req.body.password;
+    let returnObject;
+    const userEmail = data.userEmail;
+    const userPassword = data.userPassword;
+
     try {
 
         const params = {
             TableName: "butterfly_signup",
             Key: {
-                email: req.body.email,
+                email: userEmail,
             }
         };
 
         const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
+       
         if (result.Item) {
             if (result.Item.password === userPassword) {
                 var theRandomNumber = Math.floor(Math.random() * 100000) + 1;
                 const sendOtp = sendOtpEmail(userEmail, theRandomNumber);
+                if (sendOtp) {
+                    returnObject = {
+                        message: "Otp Sended",
+                        status: 200
+                    }
+                }
             }
             else {
-                console.log("password invalid");
+                returnObject = {
+                    message: "Unable to send Otp",
+                    status: 504
+                }
             }
         }
-            try {
-                const param = {
-                    TableName:"butterfly_login",
-                    Item:{
-                        email:userEmail,
-                        otp:theRandomNumber
-                    }
-                };
-                const ans = await CRUDOperationInDynamodb.createRecordInDynamodb(param);
-     } 
-            catch (error) {
-                console.log(error);
+        try {
+            const param = {
+                TableName: "butterfly_login",
+                Item: {
+                    email: userEmail,
+                    otp: theRandomNumber
+                }
+            };
+            const ans = await CRUDOperationInDynamodb.createRecordInDynamodb(param);
+        }
+        catch (error) {
+            console.log(error);
+            returnObject = {
+                message: "Incorrect Otp",
+                status: 504
             }
         }
-     catch (error) {
+    }
+    catch (error) {
         console.log(error);
-        return {
+        returnObject = {
             message: "please create an account to proceed",
             status: 424
         }
     }
+    return returnObject;
 }
-const loginwithOtp = async(req,res) => {
+
+
+const loginwithOtp = async (data) => {
+
+
     let returnObject;
-    const userEmail = req.body.email;
-    const userOtp = req.body.otp;
+    const userEmail = data.userEmail;
+    const userOtp = data.userOtp;
+    
     try {
-      const params = {
-          TableName:"butterfly_login",
-          Key:{
-              email:req.body.email
-          }
-      } ;
-      const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
-      if (result.Item) {
-          if (result.Item.otp == userOtp) {
-              console.log("success");
-              returnObject = {
-               message:"User Logged in successfully",
-               status:424
-              }
-          }
-      }
-    } catch (error) {
-     console.log(error);
-     returnObject ={
-        message:"Invalid User"
-    }
-     
+        const params = {
+            TableName: "butterfly_login",
+            Key: {
+                email: userEmail
+            }
+        };
+       
+        const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
+
+        if (result.Item) {
+            if (result.Item.otp.toString() === userOtp.toString()) {
+                returnObject = {
+                    message: "User Logged in successfully",
+                    status: 200
+                }
+            }
+            else {
+                returnObject = {
+                    message: "Invalid Otp",
+                    status: 424
+                }
+            }
+        }
+    } 
+    catch (error) {
+        console.log(error);
+        returnObject = {
+            message: "Invalid User",
+            status: 424
+        }
+
     }
     return returnObject;
 }
 
-const addRemainder = async(req,res) => {
-const dateNow = new Date();
-const remainderNanoidGeneration = nanoid(8);
+const addRemainder = async (data) => {
+
+    let returnObject;
+    const dateNow = new Date();
+    const remainderNanoidGeneration = nanoid(8);
 
     try {
-       const params = {
-           TableName:"butterfly_remainder",
-           Item:{
-               title:req.body.title,
-               content:req.body.content,
-               date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear(),
-               remaindernanoid:remainderNanoidGeneration
-           }
-       } 
-      const result = await CRUDOperationInDynamodb.createRecordInDynamodb(params);
-       if(result){
-           return {
-               message:"Remainder Added Successfully",
-               status:424
+        
+        const params = {
+            TableName: "butterfly_remainder",
+            Item: {
+                title: data.title,
+                content: data.content,
+                date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear(),
+                remaindernanoid: remainderNanoidGeneration
             }
-       }
-    } catch (error) {
-        console.log(error);
+        }
+        const result = await CRUDOperationInDynamodb.createRecordInDynamodb(params);
+        
+        if (result) {
+            returnObject = {
+                message: "Remainder Added Successfully",
+                status: 200
+            }
+        }
     }
+     catch (error) {
+        console.log(error);
+        returnObject = {
+            message: "Remainder Failed",
+            status: 424
+        }
+    }
+    return returnObject;
 }
 
 

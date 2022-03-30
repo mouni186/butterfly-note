@@ -1,28 +1,28 @@
 const dynamoDbController = require('../../dynamodb');
 
-const userLogin = async(req,res) => {
+const userLogin = async(data) => {
     try {
-        const response = await dynamoDbController.userLoginDetails(req,res);
-        res.send(response);
+        const response = await dynamoDbController.userLoginDetails(data);
+        return response;
     } catch (error) {
-        res.send(error);
+        return error;
     }
 }
-const userLoginwithOtp = async(req,res) => {
+const userLoginwithOtp = async(data) => {
     try {
-        const response = await dynamoDbController.loginwithOtp(req,res);
-        res.send(response);
+        const response = await dynamoDbController.loginwithOtp(data);
+        return response;
     } catch (error) {
-        res.send(error);
+        return error;
     }
 }
 
-const butterflyAddRemainder = async(req,res) => {
+const butterflyAddRemainder = async(data) => {
     try {
-        const response = await dynamoDbController.addRemainder(req,res);
-        res.send(response);
+        const response = await dynamoDbController.addRemainder(data);
+        return response;
     } catch (error) {
-        res.send(error);
+        return error;
     }
 }
 

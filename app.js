@@ -9,7 +9,7 @@ const validator = require('./middleware/validation')
 const sanitizer = require('./middleware/sanitization')
 
 app.use(bodyParser.json());
-
+app.use(cors());
 app.post('/butterfly-login',cors(), sanitizer.sanitizationLogin,validator.validationLogin,controller.butterflyLogin);
 app.post('/login-otp',cors(),sanitizer.sanitizationLoginwithOtp,validator.validationLoginwithOtp,controller.butterflyLoginwithOtp);
 app.post('/add-remainder',cors(),sanitizer.sanitizationRemainder,validator.validationRemainder,controller.butterflyRemainder);
