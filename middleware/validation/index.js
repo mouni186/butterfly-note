@@ -11,7 +11,27 @@ const validationLogin = (req,res,next) => {
     }
 }
 
+const validationLoginwithOtp = (req,res,next) => {
+    try {
+        const result = validationRepo.validateLoginwithOtp(req.body);
+        next();
+    } catch (error) {
+    throw new Error(error);    
+    }
+}
+
+const validationRemainder = (req,res,next) => {
+    try {
+        const result = validationRepo.validateRemainder(req.body);
+        next();
+    } catch (error) {
+    throw new Error(error);    
+    }
+}
+
 
 module.exports = {
-    validationLogin
+    validationLogin,
+    validationLoginwithOtp,
+    validationRemainder
 }
