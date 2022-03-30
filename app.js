@@ -10,7 +10,7 @@ const sanitizer = require('./middleware/sanitization')
 
 app.use(bodyParser.json());
 
-app.post('/butterfly-login',cors(), sanitizer.sanitizationLogin,validator.validationLogin);
+app.post('/butterfly-login',cors(), sanitizer.sanitizationLogin,validator.validationLogin,controller.butterflyLogin);
 
 
 

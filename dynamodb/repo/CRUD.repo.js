@@ -8,13 +8,11 @@ AWS.config.update({
 });
 
 
-const createRecordInDynamodb = async (params) => {
-
-    console.log(process.env.AWS_ACCESS_KEY_ID);
+const createRecordInDynamodb = async (param) => {
     const dynamodb = new AWS.DynamoDB.DocumentClient();
 
     try {
-        const result = await dynamodb.put(params).promise();
+        const result = await dynamodb.put(param).promise();
         return true;
 
     }

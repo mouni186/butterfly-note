@@ -6,6 +6,7 @@ const { sendOtpEmail } = require('../utils/handleEmails/emailSender');
 
 const userLoginDetails = async (req, res) => {
     // incoming data
+    let returnObject;
     const userEmail = req.body.email;
     const userPassword = req.body.password;
     try {
@@ -14,12 +15,10 @@ const userLoginDetails = async (req, res) => {
             TableName: "butterfly_signup",
             Key: {
                 email: req.body.email,
-                //  password:req.body.password
             }
         };
 
         const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
-        console.log("data from database" + result.Item.password);
         if (result.Item) {
             if (result.Item.password === userPassword) {
                 var theRandomNumber = Math.floor(Math.random() * 100000) + 1;
@@ -29,20 +28,21 @@ const userLoginDetails = async (req, res) => {
                 console.log("password invalid");
             }
         }
-        //     try {
-        //         const param = {
-        //             TableName:"butterfly_login",
-        //             Item:{
-        //                 email:req.body.email,
-        //                 otp:theRandomNumber
-        //             }
-        //         };
-        //         await CRUDOperationInDynamodb.createRecordInDynamodb(param)
-        //     } catch (error) {
-        //         console.log(error);
-        //     }
-        // }
-    } catch (error) {
+            try {
+                const param = {
+                    TableName:"butterfly_login",
+                    Item:{
+                        email:userEmail,
+                        otp:theRandomNumber
+                    }
+                };
+                const ans = await CRUDOperationInDynamodb.createRecordInDynamodb(param);
+     } 
+            catch (error) {
+                console.log(error);
+            }
+        }
+     catch (error) {
         console.log(error);
         returnObject({
             message: "please create an account to proceed",
