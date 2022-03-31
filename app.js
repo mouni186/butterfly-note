@@ -8,11 +8,20 @@ const controller = require('./controller/index')
 const validator = require('./middleware/validation')
 const sanitizer = require('./middleware/sanitization')
 
+
+
+
+
 app.use(bodyParser.json());
 app.use(cors());
-app.post('/butterfly-login', sanitizer.sanitizationLogin,validator.validationLogin,controller.butterflyLogin);
-app.post('/login-otp',sanitizer.sanitizationLoginwithOtp,validator.validationLoginwithOtp,controller.butterflyLoginwithOtp);
-app.post('/add-remainder',sanitizer.sanitizationRemainder,validator.validationRemainder,controller.butterflyRemainder);
+
+const butterflyLoginMiddleware = [sanitizer.sanitizationLogin,validator.validationLogin];
+const butterflyLoginwithOtpMiddleware = [sanitizer.sanitizationLoginwithOtp,validator.validationLoginwithOtp];
+const butterflyRemainderMiddleware = [sanitizer.sanitizationRemainder,validator.validationRemainder];
+
+app.post('/butterfly-login',butterflyLoginMiddleware, controller.butterflyLogin);
+app.post('/login-otp',butterflyLoginwithOtpMiddleware,controller.butterflyLoginwithOtp);
+app.post('/add-remainder',butterflyRemainderMiddleware,controller.butterflyRemainder);
 
 
 
