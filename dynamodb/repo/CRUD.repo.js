@@ -35,8 +35,23 @@ const getRecordInDynamodb = async (param) => {
     }
 }
 
+const updateRecordInDynamodb = async (param) => {
+console.log(param);
+    const dynamodb = new AWS.DynamoDB.DocumentClient();
+
+    try {
+        const result = await dynamodb.update(param).promise();
+        return result;
+    }
+    catch (error) {
+        throw new Error(error);
+    }
+}
+
 
 module.exports = {
     createRecordInDynamodb,
-    getRecordInDynamodb
+    getRecordInDynamodb,
+    updateRecordInDynamodb
+
 }

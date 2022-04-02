@@ -28,6 +28,7 @@ const butterflyLoginwithOtp = async(req,res) => {
 const butterflyRemainder = async(req,res) => {
     try {
         const requestedData = {
+            usernanoid:req.body.usernanoid,
             title:req.body.title,
             content:req.body.content
         }
