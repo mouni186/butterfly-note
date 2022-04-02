@@ -138,50 +138,32 @@ const addRemainder = async (data) => {
 
                 if (isArrayEmpty || arrayLength) {
                     console.log(isPresent.Item.remainder);
-                    let existingData = isPresent.Item.remainder;
+                    //   update the remainder array with the new remainder
                     const requestedData = {
                         title: data.title,
                         content: data.content,
                         remaindernanoid: remainderNanoidGeneration,
                         date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear()
                     }
-                    existingData.push(requestedData);
-                    console.log(existingData);
-                    const updatedParam = {
+                    let remainderArray = isPresent.Item.remainder;
+                    remainderArray.push(requestedData);
+                    const params = {
                         TableName: "butterfly_remainders",
                         Key: {
                             email: ans.Item.email
                         },
-                        UpadateExpression: "set remainder = :remainder",
+                        UpdateExpression: "set remainder = :r",
                         ExpressionAttributeValues: {
-                            ":remainder": existingData
+                            ":r": remainderArray
                         },
                         ReturnValues: "UPDATED_NEW"
-                    }
-                        const response = await CRUDOperationInDynamodb.updateRecordInDynamodb(updatedParam);
-                        console.log(response);
-
-                    // const updateParam = {
-                    //     TableName: "butterfly_remainders",
-                    //     Key: {
-                    //         email: ans.Item.email
-                    //     },
-                    //     UpdateExpression: "set remainder = list_append(remainder, :remainder)",
-                    //     ExpressionAttributeValues: {
-                    //         ":remainder": [{
-                    //             title: data.title,
-                    //             content: data.content,
-                    //             remaindernanoid: remainderNanoidGeneration,
-                    //             date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear()
-                    //         }]
-
-                    //     },
-
-                    //     ReturnValues: "UPDATED_NEW"
+                    };
+                    const ans = await CRUDOperationInDynamodb.updateRecordInDynamodb(params);
+                    // returnObject = {
+                    //     message: "Remainder added successfully",
+                    //     status: 200
                     // }
-                    // console.log(updateParam);
-                    // const response = await CRUDOperationInDynamodb.updateRecordInDynamodb(updateParam);
-                    // console.log(response);
+                    console.log(ans);
                 }
             } catch (error) {
                 const params = {
