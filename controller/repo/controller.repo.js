@@ -1,5 +1,18 @@
 const dynamoDbController = require('../../dynamodb');
 
+const userSignup = async(data) => {
+    try {
+        const response = await dynamoDbController.userSignupDetails(data);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
+
+
+
+
+
 const userLogin = async(data) => {
     try {
         const response = await dynamoDbController.userLoginDetails(data);
@@ -25,10 +38,20 @@ const butterflyAddRemainder = async(data) => {
         return error;
     }
 }
+const addButterflyNote = async(data) => {
+    try {
+        const response = await dynamoDbController.addNote(data);
+        return response;
+    } catch (error) {
+        return error;
+    }
+}
 
 
 module.exports = {
+    userSignup,
     userLogin,
     userLoginwithOtp,
-    butterflyAddRemainder
+    butterflyAddRemainder,
+    addButterflyNote
 }

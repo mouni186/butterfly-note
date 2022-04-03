@@ -4,6 +4,50 @@ const { sendOtpEmail } = require('../utils/handleEmails/emailSender');
 const { isArrayEmpty, arrayLength } = require('../utils/genericHelpers/objectHelpers');
 
 
+const userSignupDetails = async (data) => {
+    let returnObject;
+    try {
+        const param = {
+            TableName: "butterfly_signup",
+            Key: {
+                email: data.userEmail
+            }
+        }
+        const result = await CRUDOperationInDynamodb.getRecordInDynamodb(param);
+        if (result.Item) {
+            returnObject = {
+                message: "You are already signed in",
+                status: 504
+            }
+        }
+        else {
+            const userNanoid = nanoid(8);
+            const params = {
+                TableName: "butterfly_signup",
+                Item: {
+                    email: data.userEmail,
+                    name: data.userName,
+                    password: data.userPassword,
+                    nanoid: userNanoid
+                },
+
+            }
+            await CRUDOperationInDynamodb.createRecordInDynamodb(params);
+
+            returnObject = {
+                message: "User signed in successfully",
+                status: 200
+            }
+        }
+
+    } catch (error) {
+        console.log("Server side" + error);
+    }
+    return returnObject;
+}
+
+
+
 
 const userLoginDetails = async (data) => {
     // incoming data
@@ -112,93 +156,173 @@ const loginwithOtp = async (data) => {
     return returnObject;
 }
 
-const addRemainder = async (data) => {
 
+
+
+
+
+
+const addRemainder = async (data) => {
     let returnObject;
-    const dateNow = new Date();
     const remainderNanoidGeneration = nanoid(8);
+    const dateNow = new Date();
+    const requestedData = {
+        title: data.title,
+        content: data.content,
+        date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear(),
+        nanoid: remainderNanoidGeneration
+    }
 
     try {
-        const param = {
+        const params = {
             TableName: "butterfly_signup",
             Key: {
-                usernanoid: data.usernanoid
+                email: data.email
             }
-        };
-        const ans = await CRUDOperationInDynamodb.getRecordInDynamodb(param);
-        if (ans.Item.email) {
-            try {
-                const params = {
+        }
+        const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
+        if (result.Item) {
+            const viewParam = {
+                TableName: "butterfly_remainders",
+                Key: {
+                    email: data.email
+                }
+            }
+            const isPresent = await CRUDOperationInDynamodb.getRecordInDynamodb(viewParam);
+            if (isArrayEmpty(isPresent.Item.butterflyRemainder) || arrayLength(isPresent.Item.butterflyRemainder)) {
+                var existingData = isPresent.Item.butterflyRemainder;
+                existingData.push(requestedData);
+                const updateParam = {
                     TableName: "butterfly_remainders",
                     Key: {
-                        email: ans.Item.email
-                    }
+                        email: data.email
+                    },
+                    UpdateExpression: "set butterflyRemainder = :r",
+                    ExpressionAttributeValues: {
+                        ":r": existingData
+                    },
+                    ReturnValues: "UPDATED_NEW"
                 }
-                const isPresent = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
-
-                if (isArrayEmpty || arrayLength) {
-                    console.log(isPresent.Item.remainder);
-                    //   update the remainder array with the new remainder
-                    const requestedData = {
-                        title: data.title,
-                        content: data.content,
-                        remaindernanoid: remainderNanoidGeneration,
-                        date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear()
-                    }
-                    let remainderArray = isPresent.Item.remainder;
-                    remainderArray.push(requestedData);
-                    const params = {
-                        TableName: "butterfly_remainders",
-                        Key: {
-                            email: ans.Item.email
-                        },
-                        UpdateExpression: "set remainder = :r",
-                        ExpressionAttributeValues: {
-                            ":r": remainderArray
-                        },
-                        ReturnValues: "UPDATED_NEW"
-                    };
-                    const ans = await CRUDOperationInDynamodb.updateRecordInDynamodb(params);
-                    // returnObject = {
-                    //     message: "Remainder added successfully",
-                    //     status: 200
-                    // }
-                    console.log(ans);
+                await CRUDOperationInDynamodb.updateRecordInDynamodb(updateParam);
+                returnObject = {
+                    message: "Butterfly Remainder updated successfully",
+                    status: 200
                 }
-            } catch (error) {
-                const params = {
-                    TableName: "butterfly_remainders",
-                    Item: {
-                        email: ans.Item.email,
-                        remainder: [{
-                            remaindernanoid: remainderNanoidGeneration,
-                            title: data.title,
-                            content: data.content,
-                            date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear(),
-                        }]
-                    }
-                }
-                const result = await CRUDOperationInDynamodb.createRecordInDynamodb(params);
-
-
-                if (result) {
-                    returnObject = {
-                        message: "Remainder Added Successfully",
-                        status: 200
-                    }
+            }
+            else {
+                returnObject = {
+                    message: "NO email found",
+                    status: 424
                 }
             }
 
+        }
+
+    } catch (error) {
+        console.log(error);
+        const param = {
+            TableName: "butterfly_remainders",
+            Item: {
+                email: data.email,
+                butterflyRemainder: [{
+                    title: data.title,
+                    content: data.content,
+                    date: dateNow.getDate() + "-" + dateNow.getMonth() + "-" + dateNow.getFullYear(),
+                    nanoid: remainderNanoidGeneration
+                }]
+            }
+        }
+        await CRUDOperationInDynamodb.createRecordInDynamodb(param);
+
+        returnObject = {
+            message: "Remainder added successfully",
+            status: 200
+        }
+    }
+    return returnObject;
+}
+
+const addNote = async (data) => {
+    let returnObject;
+    const noteNanoidGenerator = nanoid(8);
+    const requestedData = {
+        title: data.title,
+        content: data.content,
+        notetype: data.notetype,
+        notenanoid: noteNanoidGenerator
+    }
+
+    try {
+        const params = {
+            TableName: "butterfly_signup",
+            Key: {
+                email: data.email
+            }
+        }
+        const result = await CRUDOperationInDynamodb.getRecordInDynamodb(params);
+
+        if (result.Item) {
+            const viewParam = {
+                TableName: "butterfly_note",
+                Key: {
+                    email: data.email
+                }
+            }
+            const isExist = await CRUDOperationInDynamodb.getRecordInDynamodb(viewParam);
+
+
+            if (isArrayEmpty(isExist.Item.note) || arrayLength(isExist.Item.note)) {
+
+                var existingData = isExist.Item.note;
+                existingData.push(requestedData)
+                const updatedParam = {
+                    TableName: "butterfly_note",
+                    Key: {
+                        email: data.email
+                    },
+                    UpdateExpression: "set note = :note",
+                    ExpressionAttributeValues: {
+                        ":note": existingData
+                    },
+                    ReturnValues: "UPDATED_NEW"
+                }
+                await CRUDOperationInDynamodb.updateRecordInDynamodb(updatedParam);
+            }
+            returnObject = {
+                message: "Note updated succesfully",
+                status: 200
+            }
 
         }
-    }
-    catch (error) {
-        console.log(error);
-        returnObject = {
-            message: "Unable to add remainder.",
-            status: 424
+        else {
+            returnObject = {
+                message: "No email found.",
+                status: 424
+            }
         }
+    } catch (error) {
+        console.log(error);
+        const param = {
+            TableName: "butterfly_note",
+            Item: {
+                email: data.email,
+                note: [{
+                    title: data.title,
+                    content: data.content,
+                    notetype: data.notetype,
+                    notenanoid: noteNanoidGenerator
+                }]
+            }
+        }
+        await CRUDOperationInDynamodb.createRecordInDynamodb(param);
+
+        returnObject = {
+            message: "Butterfly Note Created",
+            status: 200
+        }
+
     }
+
     return returnObject;
 }
 
@@ -208,7 +332,9 @@ const addRemainder = async (data) => {
 
 
 module.exports = {
+    userSignupDetails,
     userLoginDetails,
     loginwithOtp,
-    addRemainder
+    addRemainder,
+    addNote
 }

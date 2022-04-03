@@ -15,13 +15,17 @@ const sanitizer = require('./middleware/sanitization')
 app.use(bodyParser.json());
 app.use(cors());
 
+const butterflySignupMiddleware = [sanitizer.saniitizationSignup,validator.validationSignup];
 const butterflyLoginMiddleware = [sanitizer.sanitizationLogin,validator.validationLogin];
 const butterflyLoginwithOtpMiddleware = [sanitizer.sanitizationLoginwithOtp,validator.validationLoginwithOtp];
 const butterflyRemainderMiddleware = [sanitizer.sanitizationRemainder,validator.validationRemainder];
 
+
+app.post('/butterfly-signup',controller.butterflySignup);
 app.post('/butterfly-login',butterflyLoginMiddleware, controller.butterflyLogin);
 app.post('/login-otp',butterflyLoginwithOtpMiddleware,controller.butterflyLoginwithOtp);
-app.post('/add-remainder',butterflyRemainderMiddleware,controller.butterflyRemainder);
+app.post('/add-butterfly-note',controller.butterflyNote);
+app.post('/add-remainder',controller.butterflyRemainder);
 
 
 
