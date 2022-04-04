@@ -9,6 +9,7 @@ AWS.config.update({
 
 
 const createRecordInDynamodb = async (param) => {
+
     const dynamodb = new AWS.DynamoDB.DocumentClient();
 
     try {
@@ -36,7 +37,7 @@ const getRecordInDynamodb = async (param) => {
 }
 
 const updateRecordInDynamodb = async (param) => {
-console.log(param);
+
     const dynamodb = new AWS.DynamoDB.DocumentClient();
 
     try {
@@ -49,9 +50,12 @@ console.log(param);
 }
 
 
+
+
 module.exports = {
     createRecordInDynamodb,
     getRecordInDynamodb,
-    updateRecordInDynamodb
+    updateRecordInDynamodb,
+
 
 }

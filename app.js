@@ -26,6 +26,8 @@ app.post('/butterfly-login',butterflyLoginMiddleware, controller.butterflyLogin)
 app.post('/login-otp',butterflyLoginwithOtpMiddleware,controller.butterflyLoginwithOtp);
 app.post('/add-butterfly-note',controller.butterflyNote);
 app.post('/add-remainder',controller.butterflyRemainder);
+app.post('/read-all-remainder',controller.readAllButterflyRemainder);
+app.delete('/delete-remainder',controller.deleteButterflyRemainder);
 
 
 
